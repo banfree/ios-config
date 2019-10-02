@@ -1,13 +1,13 @@
 package lib.ui;
 
 import io.appium.java_client.AppiumDriver;
-import org.openqa.selenium.By;
+import lib.Platform;
 
-public class MyListsPageObject extends MainPageObject
+abstract public class MyListsPageObject extends MainPageObject
 {
-    public static final String
-    FOLDER_BY_NAME_TPL = "xpath://*[@text='{FOLDER_NAME}']",
-    ARTICLE_BY_TITLE_TPL = "xpath://*[@text='{TITLE}']";
+    protected static String
+    FOLDER_BY_NAME_TPL,
+    ARTICLE_BY_TITLE_TPL;
 
     private static String getFolderXpathByName(String name_of_folder)
     {
@@ -42,7 +42,7 @@ public class MyListsPageObject extends MainPageObject
 
     public void waitForArticleToAppearByTitle(String article_title)
     {
-        String article_xpath = getFolderXpathByName(article_title);
+        String article_xpath = getSavedArticleXpathByTitle(article_title);
         this.waitForElementPresent(
                 article_xpath,
                 "Cannot find saved article by title " + article_title,
@@ -52,7 +52,7 @@ public class MyListsPageObject extends MainPageObject
 
     public void waitForArticleToDisappearByTitle(String article_title)
     {
-        String article_xpath = getFolderXpathByName(article_title);
+        String article_xpath = getSavedArticleXpathByTitle(article_title);
         this.waitForElementNotPresent(
                 article_xpath,
                 "Saved article still present with title " + article_title,
@@ -64,12 +64,16 @@ public class MyListsPageObject extends MainPageObject
     {
         this.waitForArticleToAppearByTitle(article_title);
 
-        String article_xpath = getFolderXpathByName(article_title);
+        String article_xpath = getSavedArticleXpathByTitle(article_title);
 
         this.swipeElementToLeft(
                 article_xpath,
                 "Cannot find saved article"
         );
+        if (Platform.getInstance().isIOS())
+        {
+            this.clickElementToTheRightUpperCorner(article_xpath, "Cannot find saved article");
+        }
         this.waitForArticleToDisappearByTitle(article_title);
     }
 }

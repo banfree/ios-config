@@ -1,17 +1,18 @@
 package lib.ui;
 
 import io.appium.java_client.AppiumDriver;
-import org.openqa.selenium.By;
+import lib.Platform;
 
-public class SearchPageObject extends MainPageObject{
+abstract public class SearchPageObject extends MainPageObject{
 
-    private static final String
-            SEARCH_INIT_ELEMENT = "xpath://*[contains(@text,'Search Wikipedia')]",
-            SEARCH_INPUT = "xpath://*[contains(@text,'Search…')]",
-            SEARCH_CANCEL_BUTTON = "id:org.wikipedia:id/search_close_btn",
-            SEARCH_RESULT_BY_SUBSTRING_TPL = "xpath://*[@resource-id='org.wikipedia:id/page_list_item_container']//*[@text='{SUBSTRING}']",
-            SEARCH_RESULT_ELEMENT = "xpath://*[@resource-id='org.wikipedia:id/search_results_list']/*[@resource-id='org.wikipedia:id/page_list_item_container']",
-            SEARCH_EMPTY_RESULT_ELEMENT = "xpath://*[@text='No results found']";
+    protected static String
+            SEARCH_INIT_ELEMENT,
+            SEARCH_INPUT,
+            SEARCH_CANCEL_BUTTON,
+            SEARCH_RESULT_BY_SUBSTRING_TPL,
+            SEARCH_RESULT_ELEMENT,
+            SEARCH_EMPTY_RESULT_ELEMENT,
+            SEARCH_CLEAR_SEARCHLINE_BUTTON;
 
     public SearchPageObject(AppiumDriver driver)
     {
@@ -25,8 +26,10 @@ public class SearchPageObject extends MainPageObject{
     /*TEMPLATES METHODS*/
     public void initSearchInput()
     {
-        this.waitForElementAndClick(SEARCH_INIT_ELEMENT, "Cannot find and click search init element", 5);
-        this.waitForElementPresent(SEARCH_INIT_ELEMENT, "Cannot find search input after clicking search init element",5);
+
+        this.waitForElementAndClick(SEARCH_INIT_ELEMENT, "Cannot find and click search init element", 15);
+
+        this.waitForElementPresent(SEARCH_INIT_ELEMENT, "Cannot find search input after clicking search init element",15);
     }
 
     public void waitForCancelButtonToAppear()
@@ -38,6 +41,8 @@ public class SearchPageObject extends MainPageObject{
     {
         this.waitForElementNotPresent(SEARCH_CANCEL_BUTTON, "Search cancel button is still present!", 5);
     }
+    public void clickClearSearchLine()
+    {this.waitForElementAndClick(SEARCH_CLEAR_SEARCHLINE_BUTTON, "Cannot find and click X button to clear searchline", 5);}
 
     public void clickCancelSearch()
     {
@@ -57,6 +62,10 @@ public class SearchPageObject extends MainPageObject{
     {
         String search_result_xpath = getResultSearchElement(substring);
         this.waitForElementAndClick(search_result_xpath,"Cannot find and click search result with substring" + substring, 10);
+    }
+    public void waitForArticleWithSubstring(String substring)
+    {String search_result_xpath = getResultSearchElement(substring);
+    this.waitForElementPresent(search_result_xpath,"Cannot find search result with substring" + substring,10);
     }
 
     public int getAmountOfFoundArticles()

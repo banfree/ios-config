@@ -5,70 +5,101 @@ import lib.ui.ArticlePageObject;
 import lib.ui.MyListsPageObject;
 import lib.ui.NavigationUI;
 import lib.ui.SearchPageObject;
+import lib.ui.factories.ArticlePageObjectFactory;
+import lib.ui.factories.MyListsPageObjectFactory;
+import lib.ui.factories.NavigationUIFactory;
+import lib.ui.factories.SearchPageObjectFactory;
 import org.junit.Test;
 
-public class MyListsTests extends CoreTestCase
-{
+
+public class MyListsTests extends CoreTestCase {
+    private static final String name_of_folder = "programming_language";
+
     @Test
-    public void testSaveFirstArticleToMyList()
-    {
-        SearchPageObject SearchPageObject = new SearchPageObject(driver);
+    public void testSaveFirstArticleToMyList() {
+        SearchPageObject SearchPageObject = SearchPageObjectFactory.get(driver);
 
         SearchPageObject.initSearchInput();
         SearchPageObject.typeSearchLine("Java");
         SearchPageObject.clickByArticleWithSubstring("Object-oriented programming language");
 
-        ArticlePageObject ArticlePageObject = new ArticlePageObject(driver);
+        ArticlePageObject ArticlePageObject = ArticlePageObjectFactory.get(driver);
         ArticlePageObject.waitForTitleElement();
         String article_title = ArticlePageObject.getArticleTitle();
-        String name_of_folder = "Learning programming";
-        ArticlePageObject.addArticleToMyList(name_of_folder);
+
+        if (Platform.getInstance().isAndroid()) {
+            ArticlePageObject.addArticleToMyList(name_of_folder);
+        } else {
+            ArticlePageObject.addArticlesToMySaved();
+        }
         ArticlePageObject.closeArticle();
 
-        NavigationUI NavigationUI = new NavigationUI(driver);
+        NavigationUI NavigationUI = NavigationUIFactory.get(driver);
         NavigationUI.clickMyLists();
 
-        MyListsPageObject MyListsPageObject = new MyListsPageObject(driver);
-        MyListsPageObject.openFolderByName(name_of_folder);
+        MyListsPageObject MyListsPageObject = MyListsPageObjectFactory.get(driver);
+        if (Platform.getInstance().isAndroid()) {
+            MyListsPageObject.openFolderByName(name_of_folder);
+        } else {
+            ArticlePageObject.closeSyncWindow();
+        }
+
         MyListsPageObject.swipeByArticleToDelete(article_title);
     }
 
     @Test
-    public void testSaveAndDeleteOneOfTwoArticlesInMyList()
-    {
-        SearchPageObject SearchPageObject = new SearchPageObject(driver);
+    public void testSaveAndDeleteOneOfTwoArticlesInMyList() {
+        SearchPageObject SearchPageObject = SearchPageObjectFactory.get(driver);
 
         SearchPageObject.initSearchInput();
         SearchPageObject.typeSearchLine("Java");
         SearchPageObject.clickByArticleWithSubstring("Object-oriented programming language");
 
-        ArticlePageObject ArticlePageObject = new ArticlePageObject(driver);
+        ArticlePageObject ArticlePageObject = ArticlePageObjectFactory.get(driver);
         ArticlePageObject.waitForTitleElement();
-        String article_title = ArticlePageObject.getArticleTitle();
-        String name_of_folder = "Learning programming";
-        ArticlePageObject.addArticleToMyList(name_of_folder);
+        String article_title = "Java";
+
+        if (Platform.getInstance().isAndroid()) {
+            ArticlePageObject.addArticleToMyList(name_of_folder);
+        } else {
+            ArticlePageObject.addArticlesToMySaved();
+        }
         ArticlePageObject.closeArticle();
 
         SearchPageObject.initSearchInput();
-        SearchPageObject.typeSearchLine("Appium");
-        SearchPageObject.clickByArticleWithSubstring("Appium");
-
+        if (Platform.getInstance().isAndroid()
+        ) {
+            SearchPageObject.typeSearchLine("Java");
+        }
+        SearchPageObject.clickByArticleWithSubstring("Island of Indonesia");
         ArticlePageObject.waitForTitleElement();
-        ArticlePageObject.addNextArticleToMyList(name_of_folder);
-        ArticlePageObject.closeArticle();
-        NavigationUI NavigationUI = new NavigationUI(driver);
-        NavigationUI.clickMyLists();
+        if (Platform.getInstance().isAndroid()) {
+            ArticlePageObject.addNextArticleToMyList(name_of_folder);
+        } else {
+            ArticlePageObject.addArticlesToMySaved();
+        }
+            ArticlePageObject.closeArticle();
 
-        MyListsPageObject MyListsPageObject = new MyListsPageObject(driver);
-        MyListsPageObject.openFolderByName(name_of_folder);
-        MyListsPageObject.swipeByArticleToDelete(article_title);
-        SearchPageObject.clickByArticleWithSubstring("Appium");
-        String saved_article_title = ArticlePageObject.getArticleTitle();
+            NavigationUI NavigationUI = NavigationUIFactory.get(driver);
+            NavigationUI.clickMyLists();
 
-        assertEquals(
-                "We see unexpected title",
-                "Appium",
-                saved_article_title
-        );
+            MyListsPageObject MyListsPageObject = MyListsPageObjectFactory.get(driver);
+
+            if (Platform.getInstance().isAndroid()) {
+                MyListsPageObject.openFolderByName(name_of_folder);
+            } else
+            { ArticlePageObject.closeSyncWindow();}
+
+            MyListsPageObject.swipeByArticleToDelete(article_title);
+
+            SearchPageObject.clickByArticleWithSubstring("Java (programming language)");
+            String saved_article_subtitle = ArticlePageObject.getArticleSubtitle();
+
+            assertEquals(
+                    "We see unexpected subtitle",
+                    "Object-oriented programming language",
+                    saved_article_subtitle
+            );
+        }
     }
-}
+

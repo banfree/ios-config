@@ -12,7 +12,18 @@ public class Platform {
     private static final String PLATFORM_ANDROID = "android";
     private static final String APPIUM_URL = "http://127.0.0.1:4723/wd/hub";
 
+    private static Platform instance;
 
+    private Platform(){}
+
+    public static Platform getInstance()
+    {
+        if (instance == null)
+        {
+            instance = new Platform();
+        }
+        return instance;
+    }
     public AppiumDriver getDriver() throws Exception
     {
 
@@ -60,7 +71,7 @@ public class Platform {
         capabilities.setCapability("platformName", "iOS");
         capabilities.setCapability("deviceName", "iPhone SE");
         capabilities.setCapability("platformVersion", "11.0");
-        capabilities.setCapability("app", "/Users/poalrom/Desktop/Wikipedia.app");
+        capabilities.setCapability("app", "/Users/poalrom/Desktop/JavaAppiumAutomation/apks/Wikipedia.app");
         return capabilities;
     }
 
